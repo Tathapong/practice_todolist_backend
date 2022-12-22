@@ -20,5 +20,8 @@
     "sequelize": "^6.27.0",
     "username-generator": "^1.1.0",
     "validator": "^13.7.0"
+  },
+  "devDependencies": {
+    "axios": "^1.2.1"
   }
 }

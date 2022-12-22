@@ -49,19 +49,19 @@ exports.login = async (req, res, next) => {
     const user = await db.User.findOne({ where: { username }, raw: true });
 
     // Check existing of user
-    if (!user) return res.status(404).json({ message: "Not found username in database" });
+    if (!user) return res.json({ login: false, message: "Not found username in database" });
 
     // Check password with Hash
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     // Check correction of password
-    if (!isPasswordMatch) return res.status(400).json({ message: "Wrong password" });
+    if (!isPasswordMatch) return res.json({ login: false, message: "Wrong password" });
 
     // Generate token and response
     const payload = { id: user.id, username: user.username, email: user.email };
     const secretKey = "P@ssword";
     const token = jwt.sign(payload, secretKey, { expiresIn: 60 * 2 });
-    return res.status(200).json({ message: "Login completed", token });
+    return res.status(200).json({ login: true, message: "Login completed", token, id: user.id });
   } catch (err) {
     console.log(err);
     next(err);
