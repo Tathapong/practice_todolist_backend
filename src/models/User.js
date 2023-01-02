@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     { underscored: true, paranoid: true }
   );
   User.associate = (db) => {
-    User.hasMany(db.Todolist, { foreignKey: { name: "userId", allowNull: false } });
+    User.hasMany(db.Todolist, { foreignKey: { name: "userId", allowNull: false }, onDelete: "RESTRICT" });
   };
   return User;
 };

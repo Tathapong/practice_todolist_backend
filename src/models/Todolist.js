@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Todolist.associate = (db) => {
-    Todolist.belongsTo(db.User, { foreignKey: { name: "userId", allowNull: false } });
+    Todolist.belongsTo(db.User, { foreignKey: { name: "userId", allowNull: false }, onDelete: "RESTRICT" });
   };
   return Todolist;
 };
