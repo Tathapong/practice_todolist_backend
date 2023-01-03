@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 
 const authRoute = require("./routes/authRoute");
-const todolistRoute = require("./routes/todolistRoute");
+const todoRoute = require("./routes/todoRoute");
 
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -14,7 +14,7 @@ app.get("/cookie", (req, res, next) => {
 });
 
 app.use("/auth", authRoute);
-app.use("/todolist", todolistRoute);
+app.use("/todos", todoRoute);
 
 app.use((err, req, res, next) => {
   console.log(err);
