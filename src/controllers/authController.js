@@ -3,10 +3,9 @@ const db = require("../models/index");
 const jwt = require("jsonwebtoken");
 
 const { checkEmpty, checkMinLength, checkEmail } = require("../utilities/validatorInput");
-const sharedData = require("../utilities/shared");
 
 exports.register = async (req, res, next) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, confirmPassword } = req.body;
 
   try {
     // Validation
@@ -19,6 +18,10 @@ exports.register = async (req, res, next) => {
     //* email
     if (checkEmpty(email)) return res.status(400).send({ message: "Please input email" });
     else if (!checkEmail(email)) return res.status(400).send({ message: "Please input email in E-mail form" });
+    //* confirmPassword
+    if (checkEmpty(confirmPassword)) return res.status(400).send({ message: "Please input Confirm Password" });
+    else if (confirmPassword !== password)
+      return res.status(400).send({ message: "Confirm password did not match with Password" });
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -54,8 +57,10 @@ exports.login = async (req, res, next) => {
 
     // Generate token and response
     const payload = { userId: user.id, username: user.username, email: user.email };
-    const token = jwt.sign(payload, sharedData.secretKey, { expiresIn: sharedData.maxAge });
-    return res.status(200).json({ login: true, message: "Login completed", token, userId: user.id });
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY || "secret_key", {
+      expiresIn: process.env.JWT_MAXAGE || "30d"
+    });
+    return res.status(200).json({ token });
   } catch (err) {
     next(err);
   }
@@ -73,8 +78,8 @@ exports.email = async (req, res, next) => {
 
 exports.checkToken = async (req, res, next) => {
   try {
-    const token = req.body.todo_token;
-    const payload = jwt.verify(token, sharedData.secretKey);
+    const token = req.headers.authorization;
+    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY || "secret_key");
     return res.status(202).send({ verify: true, userId: payload.userId });
   } catch (err) {
     next(err);
