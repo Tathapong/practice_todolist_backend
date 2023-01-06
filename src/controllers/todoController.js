@@ -6,6 +6,7 @@ exports.getAllTodo = async (req, res, next) => {
   try {
     const todos = await db.Todolist.findAll({
       where: { userId: req.user.id },
+      order: [["created_at", "DESC"]],
       raw: true,
       attributes: ["id", "title", "completed"]
     });
@@ -36,7 +37,7 @@ exports.createTodo = async (req, res, next) => {
 
     // Create a todo
     const todo = await db.Todolist.create({ title, completed, userId: user.id });
-    res.status(201).json({ todo });
+    res.status(201).json({ todo: { id: todo.id, title: todo.title, completed: todo.completed } });
   } catch (err) {
     next(err);
   }
@@ -59,16 +60,15 @@ exports.deleteTodo = async (req, res, next) => {
 };
 
 exports.updateTodo = async (req, res, next) => {
-  // try {
-  //   const {
-  //     id,
-  //     newValue: { title, completed }
-  //   } = req.body;
-  //   if (checkEmpty(id)) return res.status(400).send({ message: "Please input id of todolist" });
-  //   if (checkEmpty(title)) return res.status(400).send({ message: "Please input title" });
-  //   await db.Todolist.update({ title, completed }, { where: { id } });
-  //   return res.status(204).send();
-  // } catch (err) {
-  //   next(err);
-  // }
+  try {
+    const { id } = req.params;
+    const { title, completed } = req.body;
+
+    if (checkEmpty(id)) return res.status(400).send({ message: "Please input id of todolist" });
+    if (checkEmpty(title)) return res.status(400).send({ message: "Please input title" });
+    await db.Todolist.update({ title, completed }, { where: { id } });
+    return res.status(204).json({ message: "success update" });
+  } catch (err) {
+    next(err);
+  }
 };
